@@ -50,6 +50,9 @@ async def on_message(message: Message):
     if bot_user is None:
         return
     
+    if user == bot_user or user.bot:
+        return
+    
     if "毀滅" in message.content:
         if user.id == SPEC_USER_ID:
             await message.channel.send("毀滅")
