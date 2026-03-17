@@ -26,7 +26,7 @@ async def request_timeout(message: Message, uid: int, is_borrow: bool):
         view=None
     )
 
-    return
+    print(f"Request timeout: uid={uid}, is_borrow={is_borrow}")
 
 
 @overload
