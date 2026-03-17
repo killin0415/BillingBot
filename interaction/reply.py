@@ -72,7 +72,7 @@ def parser(
 
     # Parse user relationship
     split_idx = content.index("欠")
-    another_user = mentions[0] if mentions[1].id == user.id else mentions[1]
+    another_user = mentions[1] if mentions[0].id == user.id else mentions[0]
 
     idx = content.index(another_user.mention)
     if idx < split_idx:
