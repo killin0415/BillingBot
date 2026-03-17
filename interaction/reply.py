@@ -1,15 +1,14 @@
 from discord import Bot, ClientUser, Embed, EmbedAuthor, Member, Message, User
 from discord.enums import ButtonStyle
 from discord.ui import Button, View
-from pydantic import BaseModel
 
 from datetime import datetime
 from os import getenv
+from dataclasses import dataclass
 from typing import Optional, Union
 
 from db import get_db
 from repository.borrow_repository import BorrowRepository
-from repository.return_repository import ReturnRepository
 from timeout_manager import add_request
 from utils.edit_origin_message import accept_or_reject_func
 
@@ -20,14 +19,16 @@ CUSTOM_ID_PREFIX = getenv("CUSTOM_ID_PREFIX", "default_prefix")
 UserAlias = Union[User, Member]
 
 
-class CheckResult(BaseModel):
+@dataclass
+class CheckResult():
     user: UserAlias
     bot_user: ClientUser
     content: str
     mentions: list[UserAlias]
 
 
-class ParserResult(BaseModel):
+@dataclass
+class ParserResult():
     another_user: UserAlias
     borrow_from: UserAlias
     borrow_to: UserAlias
