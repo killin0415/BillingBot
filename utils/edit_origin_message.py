@@ -26,8 +26,6 @@ async def request_timeout(message: Message, uid: int, is_borrow: bool):
         view=None
     )
 
-    print(f"Request timeout: uid={uid}, is_borrow={is_borrow}")
-
 
 @overload
 async def accept_or_reject_func(

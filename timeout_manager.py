@@ -39,11 +39,15 @@ def remove_request(uid: int) -> None:
 
 async def task():
     while True:
+        pop_list = []
         for uid, data in _data.items():
             message = data.message
 
             delta_time = datetime.now(UTC) - message.created_at
             if delta_time.total_seconds() > 300:
                 await request_timeout(message=message, uid=uid, is_borrow=data.is_borrow)
-                _data.pop(uid)
+                pop_list.append(uid)
+
+        for uid in pop_list:
+            _data.pop(uid)
         await asleep(10)
