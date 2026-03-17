@@ -8,9 +8,7 @@ except ImportError:
     UTC = timezone.utc
 from os import getenv
 
-from db import get_db
-from repository.borrow_repository import BorrowRepository
-from repository.return_repository import ReturnRepository
+from timeout_manager import remove_request
 from utils.edit_origin_message import request_accept, request_reject, request_timeout
 
 CUSTOM_ID_PREFIX = getenv("CUSTOM_ID_PREFIX", "default_prefix")
@@ -49,7 +47,7 @@ async def func(bot: Bot, interaction: Interaction):
     if user is None or len(original_message.mentions) != 2:
         await interaction.respond("無法辨識操作的使用者。", ephemeral=True)
         return
-    
+
     if user.id != target_user_id:
         await interaction.respond("你無權限操作此按鈕。", ephemeral=True)
         return
@@ -64,7 +62,7 @@ async def func(bot: Bot, interaction: Interaction):
         )
 
         return
-    
+
     if is_confirm:
         await interaction.respond("操作已確認。", ephemeral=True)
         await request_accept(
@@ -79,3 +77,5 @@ async def func(bot: Bot, interaction: Interaction):
             uid=uid,
             is_borrow=is_borrow
         )
+
+    remove_request(uid=uid)
