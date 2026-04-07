@@ -48,3 +48,17 @@ async def fun(bot: Bot, message: Message):
 
     if "今" in message.content:
         await message.reply("今日敢於獨行怪癖之人寥若晨星，正是這個時代大為可懼的標誌。")
+    
+    if 712676831911739482 in list(map(lambda u: u.id, message.mentions)):
+        channel = message.channel
+        await channel.send("<@712676831911739482>")
+        await channel.send("<@&1474010223592341514>")
+        await channel.send("<@&1474010833917968475>")
+        await channel.send("<@&1456944613884563488>")
+        await channel.send("<@&1483534240674086992>")
+        await channel.send("<@&1371190001987092490>")
+        await channel.send("<@&1370723863935062079>")
+        await channel.send("<@&1479411931398799360>")
+        await channel.send("<@&1286240209268244490>")
+        await channel.send("<@&1474010447001948200>")
+        await channel.send("<@&1474026056242696273>")
