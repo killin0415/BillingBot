@@ -48,11 +48,8 @@ async def handle_chat(bot: Bot, message: Message) -> None:
 
     try:
         response = await openai_service.process_message(
-            channel_id=message.channel.id,
-            user_message=content,
-            user_id=message.author.id,
-            username=message.author.name,
-            message_id=message.id
+            user=message.author,
+            message=message,
         )
 
         await message.reply(response, mention_author=False)

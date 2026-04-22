@@ -1,20 +1,23 @@
-import os
+from discord import Message, Member, User
 from openai import AsyncOpenAI
 from openai.types.chat import (
     ChatCompletionSystemMessageParam,
     ChatCompletionUserMessageParam,
     ChatCompletionAssistantMessageParam,
 )
-from openai.types.responses.response_input_item_param import Message
 
+from os import getenv
 from typing import Optional, TypeAlias, Union
 
 from db import get_db
 from repository.chat_repository import ChatRepository
 from schemas.chat_message import ChatMessage
 
-AIChatMessage: TypeAlias = Union[ChatCompletionSystemMessageParam,
-                                 ChatCompletionUserMessageParam, ChatCompletionAssistantMessageParam]
+AIChatMessage: TypeAlias = Union[
+    ChatCompletionSystemMessageParam,
+    ChatCompletionUserMessageParam,
+    ChatCompletionAssistantMessageParam
+]
 
 
 class OpenAIService:
@@ -25,9 +28,9 @@ class OpenAIService:
     max_tokens: int = 10_000
 
     def __init__(self):
-        api_key = os.getenv("OPENAI_API_KEY")
-        base_url = os.getenv("OPENAI_API_BASE_URL")
-        model = os.getenv("OPENAI_MODEL")
+        api_key = getenv("OPENAI_API_KEY")
+        base_url = getenv("OPENAI_API_BASE_URL")
+        model = getenv("OPENAI_MODEL")
 
         if not api_key or not base_url or not model:
             raise ValueError(
@@ -41,35 +44,38 @@ class OpenAIService:
 
     async def process_message(
         self,
-        channel_id: int,
-        user_message: str,
-        user_id: int,
-        username: str,
-        message_id: int
+        user: Union[Member, User],
+        message: Message,
     ) -> str:
+        channel = message.channel
+
         async with get_db() as conn:
             await ChatRepository.insert(
                 conn=conn,
-                channel_id=channel_id,
+                channel_id=channel.id,
                 role="user",
-                content=user_message,
-                user_id=user_id,
-                username=username,
-                message_id=message_id
+                content=message.content,
+                user_id=user.id,
+                username=user.display_name,
+                message_id=message.id
             )
 
             history = await ChatRepository.get_channel_history(
                 conn=conn,
-                channel_id=channel_id,
+                channel_id=channel.id,
                 limit=self.max_history_messages * 2
             )
 
-            messages = await self._build_messages(history, user_message, username)
+            messages = await self._build_messages(
+                history=history,
+                message=message,
+                user=user
+            )
 
             response = await self.client.chat.completions.create(
                 model=self.model,
                 messages=messages,
-                temperature=0.85
+                temperature=0.9
             )
 
             assistant_response = response.choices[0].message.content
@@ -78,7 +84,7 @@ class OpenAIService:
 
             await ChatRepository.insert(
                 conn=conn,
-                channel_id=channel_id,
+                channel_id=channel.id,
                 role="assistant",
                 content=assistant_response,
             )
@@ -89,7 +95,7 @@ class OpenAIService:
                 # 清理舊訊息以保持資料庫整潔（刪除前15%的訊息）
                 await ChatRepository.delete_old_messages(
                     conn=conn,
-                    channel_id=channel_id,
+                    channel_id=channel.id,
                     percentage=0.15
                 )
 
@@ -98,8 +104,8 @@ class OpenAIService:
     async def _build_messages(
         self,
         history: list[ChatMessage],
-        current_message: str,
-        current_username: Optional[str] = None
+        message: Message,
+        user: Union[Member, User],
     ) -> list[AIChatMessage]:
         messages: list[AIChatMessage] = [
             {"role": "system", "content": self.system_prompt}
@@ -113,8 +119,7 @@ class OpenAIService:
             if msg.role == "user":
                 messages.append({
                     "role": "user",
-                    "content": msg.content,
-                    "name": msg.username or ""
+                    "content": f"[{msg.username}<@{msg.user_id}>]: {msg.content}",
                 })
             elif msg.role == "assistant":
                 messages.append({
@@ -124,8 +129,7 @@ class OpenAIService:
 
         messages.append({
             "role": "user",
-            "content": current_message,
-            "name": current_username or ""
+            "content": f"[{user.display_name}{user.mention}]: {message.content}",
         })
 
         # 如果訊息過長，進行精簡
