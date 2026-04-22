@@ -108,7 +108,7 @@ class OpenAIService:
                 channel_id=channel.id,
                 limit=self.max_history_messages * 2
             )
-        messages = await self._build_messages(history=history)
+        messages = await self._build_messages(history=history, bot=bot)
 
         max_tool_iterations = 3
         iteration = 0
@@ -271,10 +271,12 @@ class OpenAIService:
 
     async def _build_messages(
         self,
-        history: list[ChatMessage]
+        history: list[ChatMessage],
+        bot: Bot
     ) -> list[AIChatMessage]:
         messages: list[AIChatMessage] = [
             {"role": "system", "content": self.system_prompt}
+            {"role": "system", "content": f"Your discord id is {bot.user.id} and your name is {bot.user.name}."}
         ]
 
         # 添加歷史訊息（排除系統訊息）
