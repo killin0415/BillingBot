@@ -57,6 +57,7 @@ async def handle_chat(bot: Bot, message: Message) -> None:
             user_message=content,
             user_id=message.author.id,
             username=message.author.name
+            message_id=message.id
         )
 
         await thinking_msg.edit(content=response)

@@ -44,7 +44,8 @@ class OpenAIService:
         channel_id: int,
         user_message: str,
         user_id: int,
-        username: str
+        username: str,
+        message_id: int
     ) -> str:
         async with get_db() as conn:
             await ChatRepository.insert(
@@ -52,7 +53,9 @@ class OpenAIService:
                 channel_id=channel_id,
                 role="user",
                 content=user_message,
-                message_id=user_id
+                user_id=user_id,
+                username=username,
+                message_id=message_id
             )
 
             history = await ChatRepository.get_channel_history(
@@ -78,8 +81,6 @@ class OpenAIService:
                 channel_id=channel_id,
                 role="assistant",
                 content=assistant_response,
-                user_id=None,
-                username=None
             )
 
             total_tokens = response.usage.total_tokens if response.usage else 0
