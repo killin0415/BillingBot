@@ -17,6 +17,7 @@ from chat import handle_chat
 
 intents = Intents.default()
 intents.message_content = True
+intents.members = True
 
 bot = Bot(intents=intents)
 
