@@ -1,5 +1,3 @@
-DROP TABLE IF EXISTS chat_messages CASCADE;
-
 CREATE TABLE chat_messages (
     id BIGINT PRIMARY KEY,
     channel_id BIGINT NOT NULL,
