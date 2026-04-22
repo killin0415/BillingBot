@@ -274,10 +274,15 @@ class OpenAIService:
         history: list[ChatMessage],
         bot: Bot
     ) -> list[AIChatMessage]:
+        bot_user = bot.user
         messages: list[AIChatMessage] = [
-            {"role": "system", "content": self.system_prompt}
-            {"role": "system", "content": f"Your discord id is {bot.user.id} and your name is {bot.user.name}."}
+            {"role": "system", "content": self.system_prompt},
         ]
+        if bot_user:
+            messages.append({
+                "role": "system",
+                "content": f"The assistant is currently running in a Discord bot with the username {bot_user.display_name} and user ID {bot_user.id}. When responding, you can use this information to make your responses more relevant and personalized."
+            })
 
         # 添加歷史訊息（排除系統訊息）
         for msg in history:
