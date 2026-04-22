@@ -26,10 +26,7 @@ class ChatRepository:
         )
 
         cmd, params = data.insert_query
-        row = await conn.fetchrow(cmd, *params)
-
-        if row:
-            data.created_at = row["created_at"]
+        await conn.execute(cmd, *params)
 
         return data
 
@@ -40,10 +37,10 @@ class ChatRepository:
         limit: int = 20
     ) -> List[ChatMessage]:
         rows = await conn.fetch("""
-            SELECT id, channel_id, user_id, username, role, content, created_at, message_id
+            SELECT id, channel_id, user_id, username, role, content, message_id
             FROM chat_messages
             WHERE channel_id = $1
-            ORDER BY created_at DESC
+            ORDER BY id DESC
             LIMIT $2
         """, channel_id, limit)
 
@@ -55,7 +52,6 @@ class ChatRepository:
                 username=row["username"],
                 role=row["role"],
                 content=row["content"],
-                created_at=row["created_at"],
                 message_id=row["message_id"]
             ) for row in rows[::-1]  # Reverse to get chronological order
         ]
@@ -88,7 +84,7 @@ class ChatRepository:
                 SELECT id
                 FROM chat_messages
                 WHERE channel_id = $1
-                ORDER BY created_at ASC
+                ORDER BY id ASC
                 LIMIT $2
             )
         """, channel_id, delete_count)
