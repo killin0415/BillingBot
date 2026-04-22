@@ -47,7 +47,7 @@ async def handle_chat(bot: Bot, message: Message) -> None:
         return
 
     try:
-        thinking_msg = await message.reply("思考中...")
+        thinking_msg = await message.reply("思考中...", mention_author=False)
 
         response = await openai_service.process_message(
             channel_id=message.channel.id,
