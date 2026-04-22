@@ -69,6 +69,7 @@ class OpenAIService:
             response = await self.client.chat.completions.create(
                 model=self.model,
                 messages=messages,
+                temperature=0.85
             )
 
             assistant_response = response.choices[0].message.content
