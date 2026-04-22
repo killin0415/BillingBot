@@ -117,6 +117,10 @@ class OpenAIService:
             final_response = None
 
             response = None
+            print(
+                "Messages sent to OpenAI API:" +
+                dumps(messages, ensure_ascii=False, indent=2)
+            )
             while iteration < max_tool_iterations:
                 response = await self.client.chat.completions.create(
                     model=self.model,
