@@ -1,4 +1,4 @@
-CREATE TABLE chat_messages (
+CREATE TABLE IF NOT EXISTS chat_messages (
     id BIGINT PRIMARY KEY,
     channel_id BIGINT NOT NULL,
     user_id BIGINT,
@@ -9,7 +9,7 @@ CREATE TABLE chat_messages (
     message_id BIGINT
 );
 
-CREATE INDEX idx_chat_messages_channel_id_created_at 
+CREATE INDEX IF NOT EXISTS idx_chat_messages_channel_id_created_at 
     ON chat_messages (channel_id, created_at);
-CREATE INDEX idx_chat_messages_user_id 
+CREATE INDEX IF NOT EXISTS idx_chat_messages_user_id 
     ON chat_messages (user_id);
