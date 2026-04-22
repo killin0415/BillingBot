@@ -47,8 +47,6 @@ async def handle_chat(bot: Bot, message: Message) -> None:
         return
 
     try:
-        thinking_msg = await message.reply("思考中...", mention_author=False)
-
         response = await openai_service.process_message(
             channel_id=message.channel.id,
             user_message=content,
@@ -57,7 +55,7 @@ async def handle_chat(bot: Bot, message: Message) -> None:
             message_id=message.id
         )
 
-        await thinking_msg.edit(content=response)
+        await message.reply(response, mention_author=False)
 
     except Exception as e:
         error_msg = f"抱歉，處理訊息時發生錯誤: {str(e)}"
