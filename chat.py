@@ -48,6 +48,7 @@ async def handle_chat(bot: Bot, message: Message) -> None:
 
     try:
         response = await openai_service.process_message(
+            bot=bot,
             user=message.author,
             message=message,
         )

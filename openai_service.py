@@ -1,4 +1,4 @@
-from discord import Message, Member, User
+from discord import Message, Member, User, TextChannel, Bot
 from openai import AsyncOpenAI
 from openai.types.chat import (
     ChatCompletionSystemMessageParam,
@@ -44,10 +44,15 @@ class OpenAIService:
 
     async def process_message(
         self,
+        bot: Bot,
         user: Union[Member, User],
         message: Message,
     ) -> str:
         channel = message.channel
+        if not isinstance(channel, TextChannel):
+            return "抱歉，我只能在文字頻道中回應。"
+        
+        channel_members = channel.members
 
         async with get_db() as conn:
             await ChatRepository.insert(
@@ -75,7 +80,7 @@ class OpenAIService:
             response = await self.client.chat.completions.create(
                 model=self.model,
                 messages=messages,
-                temperature=0.9
+                temperature=0.95
             )
 
             assistant_response = response.choices[0].message.content
