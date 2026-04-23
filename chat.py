@@ -49,38 +49,37 @@ async def handle_chat(bot: Bot, message: Message) -> None:
         return
 
     try:
-        response = await openai_service.process_message(
-            bot=bot,
-            user=message.author,
-            message=message,
-        )
+        async with message.channel.typing():
+            response = await openai_service.process_message(
+                bot=bot,
+                user=message.author,
+                message=message,
+            )
 
-        members = message.channel.members \
-            if isinstance(message.channel, TextChannel) else []
+            members = message.channel.members \
+                if isinstance(message.channel, TextChannel) else []
 
-        members_id_map = {
-            str(member.id): member
-            for member in members
-        }
+            members_id_map = {
+                str(member.id): member
+                for member in members
+            }
 
-        mentions = findall(r"<@!?(\d+)>", response)
-        if len(mentions) >= 5:
-            for mention in mentions:
-                response = response.replace(
-                    f"<@{mention}>",
-                    members_id_map[mention].display_name
-                    if mention in members_id_map
-                    else f"{mention}(id:{mention})"
-                )
-                response = response.replace(
-                    f"<@!{mention}>",
-                    members_id_map[mention].display_name
-                    if mention in members_id_map
-                    else f"{mention}(id:{mention})"
-                )
-
+            mentions = findall(r"<@!?(\d+)>", response)
+            if len(mentions) >= 5:
+                for mention in mentions:
+                    response = response.replace(
+                        f"<@{mention}>",
+                        members_id_map[mention].display_name
+                        if mention in members_id_map
+                        else f"{mention}(id:{mention})"
+                    )
+                    response = response.replace(
+                        f"<@!{mention}>",
+                        members_id_map[mention].display_name
+                        if mention in members_id_map
+                        else f"{mention}(id:{mention})"
+                    )
         await message.reply(response, mention_author=False)
-
     except Exception as e:
         error_msg = f"抱歉，處理訊息時發生錯誤: {str(e)}"
         await message.reply(error_msg)
