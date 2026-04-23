@@ -49,7 +49,7 @@ class OpenAIService:
         self.client = AsyncOpenAI(api_key=api_key, base_url=base_url)
 
         self.model = model
-        with open("system_prompt.md", "r", encoding="utf-8") as f:
+        with open("prompts/system.md", "r", encoding="utf-8") as f:
             self.system_prompt = f.read()
 
     async def process_message(
