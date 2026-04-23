@@ -1,14 +1,10 @@
 from discord import Bot, Message, TextChannel
-from openai_service import get_openai_service
+from llm.llm import get_llm_service
 
 from re import findall
 
 
 async def handle_chat(bot: Bot, message: Message) -> None:
-    """
-    處理聊天訊息，當機器人被 mention 時回應
-    返回 True 表示已處理，False 表示未處理
-    """
     user = message.author
     bot_user = bot.user
 
@@ -18,7 +14,6 @@ async def handle_chat(bot: Bot, message: Message) -> None:
     if bot_user not in message.mentions:
         return
 
-    # 移除 mention 部分，取得純文字內容
     content = message.content
     for mention_user in message.mentions:
         content = content.replace(
@@ -28,19 +23,8 @@ async def handle_chat(bot: Bot, message: Message) -> None:
 
     content = content.strip()
 
-    # 清除對話歷史命令
-    # clear_commands = ["!clear", "!clear_chat", "!清除", "!清空"]
-    # if content.lower() in clear_commands:
-    #     try:
-    #         async with get_db() as conn:
-    #             await ChatRepository.clear_channel_history(conn, message.channel.id)
-    #         await message.reply("已清除此頻道的對話歷史。")
-    #     except Exception as e:
-    #         await message.reply(f"清除歷史時發生錯誤: {str(e)}")
-    #     return True
-
     try:
-        openai_service = get_openai_service()
+        llm_service = get_llm_service()
     except ValueError as e:
         await message.reply(f"聊天功能無法使用: {str(e)}")
         return
@@ -50,9 +34,8 @@ async def handle_chat(bot: Bot, message: Message) -> None:
 
     try:
         async with message.channel.typing():
-            response = await openai_service.process_message(
+            response = await llm_service.process_message(
                 bot=bot,
-                user=message.author,
                 message=message,
             )
 

@@ -16,6 +16,7 @@ idna==3.11
 jiter==0.14.0
 multidict==6.7.0
 openai==2.32.0
+orjson==3.11.8
 propcache==0.4.1
 py-cord==2.7.0
 pydantic==2.12.5
