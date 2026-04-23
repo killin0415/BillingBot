@@ -1,7 +1,4 @@
-from aiohttp import ClientSession
 from discord import ApplicationContext
-
-from os import getenv
 
 from bot import bot
 from db import get_db

@@ -1,17 +1,19 @@
 from os import listdir
 from os.path import isdir
 
+from .config import AVAILABLE_MODES
+
 PROMPTS_DIR = "prompts"
 
 
 class PromptStore:
     __builtin_prompts__ = ["system", "summary"]
-    system: str
+    system: dict[str, str]
     summary: str
     _others: dict[str, str]
 
     def __init__(self) -> None:
-        self.system = ""
+        self.system = {}
         self.summary = ""
         self._others = {}
 
@@ -26,12 +28,17 @@ class PromptStore:
                 content = f.read()
 
             prompt_name = prompt_file[:-3]
-            if prompt_name == "system":
-                self.system = content
+            if prompt_name.startswith("system"):
+                response_mode = prompt_name.split(".", 1)[1] \
+                    if "." in prompt_name else "default"
+                self.system[response_mode] = content
             elif prompt_name == "summary":
                 self.summary = content
             else:
                 self._others[prompt_name] = content
+
+    def get_system_prompt(self, mode: str) -> str:
+        return self.system.get(mode, self.system.get("default", ""))
 
     def __getattr__(self, name: str) -> str:
         if name in self.__builtin_prompts__:

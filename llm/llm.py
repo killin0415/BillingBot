@@ -53,10 +53,11 @@ class LLMService():
         bot_id = bot.user.id if bot.user else None
         display_name = channel.guild.me.display_name
 
+        system_prompt = self.prompts.get_system_prompt(
+            self.config.response_mode)
         messages: list[PossibleMessageType] = [
             {"role": "system", "content": f"The assistant is currently running in a Discord bot with the username {display_name} and user ID {bot_id}. When responding, you can use this information to make your responses more relevant and personalized."},
             {"role": "system", "content": f"Current time: {datetime.now().isoformat()}"},
-            {"role": "system", "content": self.prompts.system},
         ]
 
         for msg in db_messages:
@@ -71,6 +72,8 @@ class LLMService():
                     "role": msg.role,
                     "content": msg.content
                 })  # type: ignore
+
+        messages.append({"role": "system", "content": system_prompt})
 
         return messages
 

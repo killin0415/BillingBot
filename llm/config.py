@@ -1,4 +1,14 @@
-from os import getenv
+from os import getenv, listdir
+from os.path import isdir
+from re import match
+
+AVAILABLE_MODES: list[str] = [
+    re_match.group(1)
+    for re_match in [
+        match(r"^system.(.+).md$", f)
+        for f in listdir("prompts")
+    ] if re_match is not None
+] if isdir("prompts") else []
 
 
 class OpenAIConfig():
@@ -8,6 +18,7 @@ class OpenAIConfig():
     max_history_messages: int = 1000
     max_tokens: int = 10_000
     max_tool_iterations: int = 3
+    response_mode: str
 
     def __init__(self):
         api_key = getenv("OPENAI_API_KEY")
@@ -33,3 +44,5 @@ class OpenAIConfig():
             "OPENAI_MAX_TOOL_ITERATIONS",
             self.max_tool_iterations
         ))
+
+        self.response_mode = "default" if "default" in AVAILABLE_MODES else AVAILABLE_MODES[0]
